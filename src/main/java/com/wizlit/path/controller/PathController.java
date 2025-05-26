@@ -1,10 +1,10 @@
 package com.wizlit.path.controller;
 
-import com.wizlit.path.model.AddPointDto;
 import com.wizlit.path.entity.Point;
-import com.wizlit.path.model.OutputEdgeDto;
-import com.wizlit.path.model.OutputPointDto;
-import com.wizlit.path.model.OutputPathDto;
+import com.wizlit.path.model.request.AddPointRequest;
+import com.wizlit.path.model.response.EdgeResponse;
+import com.wizlit.path.model.response.PathResponse;
+import com.wizlit.path.model.response.PointResponse;
 import com.wizlit.path.service.EdgeService;
 import com.wizlit.path.service.PointService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,7 +45,7 @@ public class PathController {
                             responseCode = "200",
                             description = "Successfully retrieved the point",
                             content = @Content(
-                                    schema = @Schema(implementation = OutputPointDto.class)
+                                    schema = @Schema(implementation = PointResponse.class)
                             )
                     ),
                     @ApiResponse(
@@ -58,9 +58,9 @@ public class PathController {
                     )
             }
     )
-    public Mono<ResponseEntity<OutputPointDto>> getPoint(@PathVariable Long pointId) {
+    public Mono<ResponseEntity<PointResponse>> getPoint(@PathVariable Long pointId) {
         return pointService.findExistingPoint(pointId)
-                .map(point -> ResponseEntity.ok(OutputPointDto.fromPoint(point)));
+                .map(point -> ResponseEntity.ok(PointResponse.fromPoint(point)));
     }
     
     /**
@@ -82,7 +82,7 @@ public class PathController {
                             responseCode = "200",
                             description = "Successfully retrieved points and edges",
                             content = @Content(
-                                    schema = @Schema(implementation = OutputPathDto.class)
+                                    schema = @Schema(implementation = PathResponse.class)
                             )
                     ),
                     @ApiResponse(
@@ -97,16 +97,16 @@ public class PathController {
                     )
             }
     )
-    public Mono<ResponseEntity<OutputPathDto>> getAllPointsAndEdges() {
+    public Mono<ResponseEntity<PathResponse>> getAllPointsAndEdges() {
         return pointService.getAllPoints()
                 .collectList()
                 .flatMap(points -> {
                     if (points.isEmpty()) {
-                        return Mono.just(ResponseEntity.ok(OutputPathDto.builder().build()));
+                        return Mono.just(ResponseEntity.ok(PathResponse.builder().build()));
                     }
                     return edgeService.getAllEdgesByPoints(points)
                             .collectList()
-                            .map(edges -> ResponseEntity.ok(OutputPathDto.fromEdgesAndPoints(points, edges)));
+                            .map(edges -> ResponseEntity.ok(PathResponse.fromEdgesAndPoints(points, edges)));
                 });
     }
 
@@ -123,7 +123,7 @@ public class PathController {
                             responseCode = "201",
                             description = "Successfully created a new point",
                             content = @Content(
-                                    schema = @Schema(implementation = OutputPointDto.class)
+                                    schema = @Schema(implementation = PointResponse.class)
                             )
                     ),
                     @ApiResponse(
@@ -147,14 +147,14 @@ public class PathController {
                     )
             }
     )
-    public Mono<ResponseEntity<OutputPointDto>> addPoint(@RequestBody AddPointDto addPointDto) {
+    public Mono<ResponseEntity<PointResponse>> addPoint(@RequestBody AddPointRequest addPointDto) {
 
-        Point newPoint = AddPointDto.toPoint(addPointDto);
+        Point newPoint = AddPointRequest.toPoint(addPointDto);
 
         if (addPointDto.getOrigin() == null && addPointDto.getDestination() == null) {
             // Only adding a new point with no connections
             return pointService.createPoint(newPoint)
-                    .map(_savedPoint -> ResponseEntity.status(HttpStatus.CREATED).body(OutputPointDto.fromPoint(_savedPoint)));
+                    .map(_savedPoint -> ResponseEntity.status(HttpStatus.CREATED).body(PointResponse.fromPoint(_savedPoint)));
 
         } else if (addPointDto.getOrigin() == null || addPointDto.getDestination() == null) {
             // Connect point with one edge - validate existence of origin or destination
@@ -170,7 +170,7 @@ public class PathController {
                                     addPointDto.getDestination() != null ? Long.valueOf(addPointDto.getDestination()) : _savedPoint.getId()
                             ).then(Mono.just(_savedPoint))
                     )
-                    .flatMap(_savedPoint -> Mono.just(ResponseEntity.status(HttpStatus.CREATED).body(OutputPointDto.fromPoint(_savedPoint))));
+                    .flatMap(_savedPoint -> Mono.just(ResponseEntity.status(HttpStatus.CREATED).body(PointResponse.fromPoint(_savedPoint))));
         } else {
             return pointService.convertPointsToLong(addPointDto.getOrigin(), addPointDto.getDestination())
                     .flatMap(_tuple -> {
@@ -184,7 +184,7 @@ public class PathController {
                                                 .then(Mono.just(_savedMiddlePoint))
                                 );
                     })
-                    .map(_savedPoint -> ResponseEntity.status(HttpStatus.CREATED).body(OutputPointDto.fromPoint(_savedPoint)));
+                    .map(_savedPoint -> ResponseEntity.status(HttpStatus.CREATED).body(PointResponse.fromPoint(_savedPoint)));
         }
     }
 
@@ -208,7 +208,7 @@ public class PathController {
                             responseCode = "200",
                             description = "Successfully connected the two points",
                             content = @Content(
-                                    schema = @Schema(implementation = OutputEdgeDto.class)
+                                    schema = @Schema(implementation = EdgeResponse.class)
                             )
                     ),
                     @ApiResponse(
@@ -234,7 +234,7 @@ public class PathController {
                     )
             }
     )
-    public Mono<ResponseEntity<OutputEdgeDto>> connectTwoPoints(@RequestParam String origin, @RequestParam String destination) {
+    public Mono<ResponseEntity<EdgeResponse>> connectTwoPoints(@RequestParam String origin, @RequestParam String destination) {
         return pointService.convertPointsToLong(origin, destination)
                 .flatMap(_tuple -> {
                     Long originIdInLong = _tuple.getT1();
@@ -245,6 +245,6 @@ public class PathController {
                             .then(edgeService.validateNotBackwardPath(originIdInLong, destinationIdInLong, 5))
                             .then(edgeService.createEdge(originIdInLong, destinationIdInLong));
                 })
-                .map(_edge -> ResponseEntity.status(HttpStatus.CREATED).body(OutputEdgeDto.fromEdge(_edge)));
+                .map(_edge -> ResponseEntity.status(HttpStatus.CREATED).body(EdgeResponse.fromEdge(_edge)));
     }
 }

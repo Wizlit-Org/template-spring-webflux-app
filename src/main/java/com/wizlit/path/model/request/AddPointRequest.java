@@ -1,4 +1,4 @@
-package com.wizlit.path.model;
+package com.wizlit.path.model.request;
 
 import com.wizlit.path.entity.Point;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AddPointDto {
+public class AddPointRequest {
     @Schema(description = "Title of the point")
     private String title;
     private String objective;
@@ -20,7 +20,7 @@ public class AddPointDto {
     private String destination;
 
     // function: convert to Point
-    public static Point toPoint(AddPointDto addPointDto) {
+    public static Point toPoint(AddPointRequest addPointDto) {
         return Point.builder()
                 .title(addPointDto.getTitle())
                 .objective(addPointDto.getObjective())

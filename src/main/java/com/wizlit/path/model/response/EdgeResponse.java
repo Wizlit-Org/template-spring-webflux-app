@@ -1,4 +1,4 @@
-package com.wizlit.path.model;
+package com.wizlit.path.model.response;
 
 import com.wizlit.path.entity.Edge;
 import lombok.AllArgsConstructor;
@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OutputEdgeDto {
+public class EdgeResponse {
     private String origin;
     private String destination;
     private Boolean trimmed;
 
     // function: convert from Edge
-    public static OutputEdgeDto fromEdge(Edge edge) {
-        return OutputEdgeDto.builder()
+    public static EdgeResponse fromEdge(Edge edge) {
+        return EdgeResponse.builder()
                 .origin(edge.getOriginPoint().toString())
                 .destination(edge.getDestinationPoint().toString())
                 .trimmed(Boolean.FALSE) // Default value or modify as required

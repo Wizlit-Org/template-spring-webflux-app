@@ -1,4 +1,4 @@
-package com.wizlit.path.model;
+package com.wizlit.path.model.response;
 
 import com.wizlit.path.entity.Point;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OutputPointDto {
+public class PointResponse {
     private String id;
     private String title;
     private String objective;
@@ -20,8 +20,8 @@ public class OutputPointDto {
     private Timestamp created_on;
 
     // function: convert Point to OutputPointDto
-    public static OutputPointDto fromPoint(Point point) {
-        return OutputPointDto.builder()
+    public static PointResponse fromPoint(Point point) {
+        return PointResponse.builder()
                 .id(point.getId().toString())
                 .title(point.getTitle())
                 .objective(point.getObjective())

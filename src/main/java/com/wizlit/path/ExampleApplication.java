@@ -8,10 +8,10 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 @SpringBootApplication
 @EnableR2dbcRepositories
 @EnableAspectJAutoProxy
-public class PathApplication {
+public class ExampleApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PathApplication.class, args);
+		SpringApplication.run(ExampleApplication.class, args);
 	}
 
 }
