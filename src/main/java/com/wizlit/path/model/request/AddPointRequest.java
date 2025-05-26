@@ -1,6 +1,5 @@
 package com.wizlit.path.model.request;
 
-import com.wizlit.path.entity.Point;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,19 +11,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AddPointRequest {
+    @Schema(description = "Project ID")
+    private Long projectId;
     @Schema(description = "Title of the point")
     private String title;
-    private String objective;
-    private String document;
-    private String origin;
-    private String destination;
+    @Schema(description = "Origin point ID")
+    private Long origin;
+    @Schema(description = "Destination point ID")
+    private Long destination;
 
     // function: convert to Point
-    public static Point toPoint(AddPointRequest addPointDto) {
-        return Point.builder()
-                .title(addPointDto.getTitle())
-                .objective(addPointDto.getObjective())
-                .document(addPointDto.getDocument())
-                .build();
-    }
+    // public Point toPoint(Long userId) {
+    //     return Point.builder()
+    //             .pointTitle(this.title)
+    //             .pointCreatedUser(userId)
+    //             .build();
+    // }
 }
